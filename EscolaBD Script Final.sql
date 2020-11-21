@@ -2,7 +2,7 @@ drop database EscolaBD;
 create database EscolaBD;
 
 use EscolaBD;
-
+/*criando tabelas*/
 create table pessoa (
 	CPF int primary key not null,
     matricula int,
@@ -64,7 +64,7 @@ create table notafinal (
     matricula int, /*aluno*/
     nota int
 );
-
+/*registro, tem que ser 5 p/ cada tabela */
 insert into pessoa (CPF, matricula, nome, telefone, endereco, estadoCivil, nascimento) values ('01', '001', 'Marcella', 'rua 01 casa 159', '1111', 'casada', '1970-05-09');
 insert into pessoa (CPF, matricula, nome, telefone, endereco, estadoCivil, nascimento) values ('02', '002', 'Mauricio', 'rua 02 casa 198', '1112', 'casado', '1988-03-01');
 insert into pessoa (CPF, matricula, nome, telefone, endereco, estadoCivil, nascimento) values ('03', '003', 'Denilson', 'rua 03 casa 155', '1113', 'casado', '1982-04-03');
@@ -82,4 +82,18 @@ insert into professor (formacao, idDisciplina, turma) values ('geografia', '2', 
 insert into professor (formacao, idDisciplina, turma) values ('fisica', '3', 'A');
 insert into professor (formacao, idDisciplina, turma) values ('quimica', '4', 'A');
 insert into professor (formacao, idDisciplina, turma) values ('biologia', '5', 'A');
+
+/*views*/
+drop view pessoas;
+create view pessoas as
+select 'Meteria', matricula, idturma, idDisciplina from disciplina
+union all
+select 'professor', formacao, turma, idDisciplina from professor
+order by idDisciplina;
+
+select * from pessoas;
+
+
+
+
 
