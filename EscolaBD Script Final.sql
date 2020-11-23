@@ -32,11 +32,6 @@ create table turma (
 	idturma int not null primary key,
     turno varchar(45)
 );
-create table disciplina (
-	idDisciplina int not null primary key,
-    idturma int not null,
-    matricula int 
-);
 create table avisos (
 	idAviso int not null,
     dataAviso date,
@@ -92,6 +87,26 @@ select 'professor', formacao, turma, idDisciplina from professor
 order by idDisciplina;
 
 select * from pessoas;
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS mediaAluno $$
+CREATE PROCEDURE mediaAluno (n1 FLOAT, n2 int)
+main: BEGIN 
+
+DECLARE MEDIA FLOAT;
+DECLARE NOTAFINAL FLOAT;
+set MEDIA = n1 + n2;
+set NOTAFINAL = MEDIA/2;
+SELECT NOTAFINAL AS notaFinal;
+
+END $$
+
+DELIMITER ;
+
+CALL mediaAluno(7,7);
+
+
+
 
 
 
