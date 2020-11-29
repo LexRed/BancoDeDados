@@ -185,41 +185,48 @@ def menu_inserir():
     op = input("7 - Nota final              8 - Cargo\n")
     inserir(op)
 
+
 def pega_pessoa():
     print("Digite os dados pessoais\n")
     cpf = input("Digite o CPF:")
     nome = input("Digite o nome:")
     telefone = input("Digite o telefone com DDD:")
     endereco = input("Digite o endereço:")
-    nascimento = datetime.datetime.strptime(input("Digite a data de nascimento(dd/mm/aaaa):"), '%d/%m/%Y')
+    nascimento = datetime.datetime.strptime(
+        input("Digite a data de nascimento(dd/mm/aaaa):"), '%d/%m/%Y')
     nascimento = nascimento.date()
     estado_civil = input("Digite o estado civil:")
     sql = "INSERT INTO pessoa VALUES (%s, %s, %s, %s, %s, %s)"
-    cursor.execute(sql, (cpf, nome, telefone, endereco, nascimento, estado_civil))
+    cursor.execute(sql, (cpf, nome, telefone,
+                         endereco, nascimento, estado_civil))
 
     return cpf
 
+
 def pega_prof(cpf):
     matricula = gmatri()
-    print("Matricula gerada: ",matricula,"\n")
+    print("Matricula gerada: ", matricula, "\n")
     formacao = input("Digite a formação:\n")
     pessoa_cpf = cpf
     sql = "INSERT INTO professor VALUES (%s, %s, %s)"
     cursor.execute(sql, (matricula, formacao, pessoa_cpf))
 
+
 def pega_aluno(cpf):
     matricula = gmatri()
-    print("Matricula gerada: ",matricula,"\n")
+    print("Matricula gerada: ", matricula, "\n")
     serie = input("Digite a serie:\n")
     periodo = input("Digite o periodo(Matutino ou Vespertino):\n")
     pessoa_cpf = cpf
     sql = "INSERT INTO aluno VALUES (%s, %s, %s, %s)"
     cursor.execute(sql, (serie, periodo, matricula, pessoa_cpf))
 
+
 def pega_resp(cpf):
     pessoa_cpf = cpf
     sql = "INSERT INTO responsavel VALUES (%s)"
     cursor.execute(sql, (pessoa_cpf))
+
 
 def pega_disciplina():
     id_dis = gid()
@@ -229,8 +236,9 @@ def pega_disciplina():
     carga = input("Carga horária:\n")
     carga = datetime.timedelta(hours=int(carga)).total_seconds()/3600
     sql = "INSERT INTO disciplina VALUES (%s,%s,%s,%s)"
-    cursor.execute(sql, (id_dis,plano,nome,carga))
+    cursor.execute(sql, (id_dis, plano, nome, carga))
     return id_dis
+
 
 def pega_turma(id_dis):
     id_tur = gid()
@@ -238,24 +246,28 @@ def pega_turma(id_dis):
     turno = input("Digite o periodo da turma(Matutino ou Vespertino):\n")
     disciplina_id = id_dis
     sql = "INSERT INTO turma VALUES (%s,%s,%s)"
-    cursor.execute(sql, (id_tur,turno,disciplina_id))
+    cursor.execute(sql, (id_tur, turno, disciplina_id))
+
 
 def pega_ava():
     id_tur = input("Digite o ID da turma:\n")
     matri_alu = input("Digite a matricula do aluno:\n")
     tipo = input("Tipo de avaliação(Trabalho, Prova, Teste e etc)\n")
-    data =  datetime.datetime.strptime(input("Digite a data da avaliação(dd/mm/aaaa):"), '%d/%m/%Y')
+    data = datetime.datetime.strptime(
+        input("Digite a data da avaliação(dd/mm/aaaa):"), '%d/%m/%Y')
     data = data.date()
     valor = input("Digite o valor obtido:\n")
     sql = "INSERT INTO avaliacao VALUES (%s,%s,%s,%s,%s)"
-    cursor.execute(sql, (tipo,valor,data,id_tur,matri_alu))
+    cursor.execute(sql, (tipo, valor, data, id_tur, matri_alu))
+
 
 def pega_nota_final():
     turma = input("Digite o ID da turma:\n")
     aluno = input("Digite o ID do aluno:\n")
     valor = input("Digite o valor da nota final:\n")
     sql = "INSERT INTO avaliacao VALUES (%s,%s,%s)"
-    cursor.execute(sql, (valor,turma,aluno))
+    cursor.execute(sql, (valor, turma, aluno))
+
 
 def pega_cargo():
     id_cargo = gid()
@@ -265,10 +277,11 @@ def pega_cargo():
     p = input()
     if p != '':
         sql = "INSERT INTO avaliacao VALUES (%s,%s,%s,%s)"
-        cursor.execute(sql, (id_cargo,nome,funcao,p))
+        cursor.execute(sql, (id_cargo, nome, funcao, p))
     else:
         sql = "INSERT INTO avaliacao (id, nome, funcao) VALUES (%s,%s,%s)"
-        cursor.execute(sql, (id_cargo,nome,funcao))    
+        cursor.execute(sql, (id_cargo, nome, funcao))
+
 
 def inserir(op):
 
@@ -335,13 +348,197 @@ def inserir(op):
         input(" ")
         menu_inserir()
 
-menu_inserir()
+# menu_inserir()
 
 # Interface de leitura (R):
 
 def menu_leitura():
-    print("Selecione o que deseja consultar:\n)
-    
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Selecione o que deseja consultar:\n")
+    print("1 - Professor               2 - Aluno                     3 - Responsável \n")
+    print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
+    op = input(
+        "7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
+    consulta(op)
+
+
+def consulta_prof():
+    op = input("1 - Matricula                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        matricula = input("Digite a matricula:\n")
+        cursor.execute("SELECT * from professor WHERE matricula = "+matricula)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from professor")
+        resultado = cursor.fetchall()
+    return resultado
+
+
+def consulta_aluno():
+    op = input("1 - Matricula                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        matricula = input("Digite a matricula:\n")
+        cursor.execute("SELECT * from aluno WHERE matricula = "+matricula)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from aluno")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_resp():
+    op = input("1 - CPF                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        cpf = input("Digite o CPF:\n")
+        cursor.execute("SELECT * from responsavel WHERE cpf = "+cpf)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from responsavel")
+        resultado = cursor.fetchall()
+    return resultado
+
+
+def consulta_disci():
+    op = input("1 - ID                  2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_dis = input("Digite o id:\n")
+        cursor.execute("SELECT * from disciplina WHERE id = "+id_dis)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from responsavel")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_turma():
+    op = input("1 - ID                  2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o id:\n")
+        cursor.execute("SELECT * from turma WHERE id = "+id_tur)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from turma")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_ava():
+    op = input("1 - Turma e Aluno                 2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o ID da turma:\n")
+        matri_alu = input("Digite a matricula do aluno:\n")
+        cursor.execute("SELECT * from avaliacao WHERE turma_id = " +
+                       id_tur+" AND aluno_matricula = "+matri_alu)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from avaliacao")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_notafinal():
+    op = input("1 - Turma e Aluno                 2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o ID da turma:\n")
+        matri_alu = input("Digite a matricula do aluno:\n")
+        cursor.execute("SELECT * from nota_final WHERE turma_id = " +
+                       id_tur+" AND aluno_matricula = "+matri_alu)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from nota_final")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_cargo():
+    op = input("1 - ID                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        id_cargo = input("Digite o id:\n")
+        cursor.execute("SELECT * from cargo WHERE id = "+id_cargo)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from cargo")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta_pessoa():
+    op = input("1 - CPF                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        cpf = str(input("Digite o CPF:\n"))
+        cursor.execute("SELECT * from pessoa WHERE cpf = "+cpf)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("SELECT * from pessoa")
+        resultado = cursor.fetchall()
+    return resultado
+
+def consulta(op):
+
+    if op == "1":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_prof():
+            print("Matricula: ", r[0], " Formação: ", r[1], " CPF: ", r[2])
+        input(" ")
+        menu_leitura()
+    if op == "2":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_aluno():
+            print("Matricula: ", r[2], " CPF: ", r[3],
+                  " Serie: ", r[0], " Periodo: ", r[1])
+        input(" ")
+        menu_leitura()
+    if op == "3":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_resp():
+            print("CPF: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "4":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_disci():
+            print("ID: ", r[0], " plano: ", r[1],
+                  " Nome: ", r[2], " Carga horária ", r[3])
+        input(" ")
+        menu_leitura()
+    if op == "5":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_turma():
+            print("ID: ", r[0], " periodo: ", r[1], " ID Disciplina: ", r[2])
+        input(" ")
+        menu_leitura()
+    if op == "6":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_ava():
+            print("Matricula Aluno: ", r[4], " ID Turma: ", r[3],
+                  " data: ", r[2], " valor: ", r[1], " tipo: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "7":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_notafinal():
+            print("Matricula Aluno: ", r[2],
+                  " ID Turma: ", r[1], " valor: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "8":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_cargo():
+            print("ID cargo: ", r[0]," nome ", r[1], " função: ", r[2]," CPF: ", r[3])
+        input(" ")
+        menu_leitura()
+    if op == "9":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in consulta_pessoa():
+            print("CPF: ", r[0]," Nome: ", r[1], " Telefone: ", r[2]," Endereço: ", r[3]," Nascimento: ",r[4]," Estado civil: ",r[5])
+        input(" ")
+        menu_leitura()
+
+
+menu_leitura()
 
 
 # Criação de tabela
