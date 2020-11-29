@@ -39,7 +39,8 @@ create table avisos (
     CPFresponsalvel varchar(40) /*destinatario da mensagem*/
 );
 create table responsavel (
-	filhos int not null
+	nome varchar(45) not null,
+    filhos int not null
 );
 create table avaliacao (
 	tipo varchar(45) not null,
@@ -72,11 +73,60 @@ insert into disciplina (idDisciplina, idturma, matricula) values ('3', '3', '003
 insert into disciplina (idDisciplina, idturma, matricula) values ('4', '4', '004');
 insert into disciplina (idDisciplina, idturma, matricula) values ('5', '5', '005');
 
-insert into professor (formacao, idDisciplina, turma) values ('matematica', '1', 'A');
-insert into professor (formacao, idDisciplina, turma) values ('geografia', '2', 'A');
-insert into professor (formacao, idDisciplina, turma) values ('fisica', '3', 'A');
-insert into professor (formacao, idDisciplina, turma) values ('quimica', '4', 'A');
-insert into professor (formacao, idDisciplina, turma) values ('biologia', '5', 'A');
+insert into professor (formacao, idDisciplina, idturma) values ('matematica', '1', '5');
+insert into professor (formacao, idDisciplina, idturma) values ('geografia', '2', '6');
+insert into professor (formacao, idDisciplina, idturma) values ('fisica', '3', '7');
+insert into professor (formacao, idDisciplina, idturma) values ('quimica', '4', '8');
+insert into professor (formacao, idDisciplina, idturma) values ('biologia', '5', '9');
+
+insert into cargo (idcargo, nome, funcao) values ('10', 'Mara', 'Diretora');
+insert into cargo (idcargo, nome, funcao) values ('11', 'Mario', 'professor');
+insert into cargo (idcargo, nome, funcao) values ('12', 'Marta', 'aluna');
+insert into cargo (idcargo, nome, funcao) values ('13', 'Marcio', 'responsavel');
+insert into cargo (idcargo, nome, funcao) values ('14', 'Martin', 'aluno');
+
+insert into aluno (idturma, nome, turno) values ('5', 'Chico' , 'diurno');
+insert into aluno (idturma, nome, turno) values ('5', 'Carlos', 'diurno');
+insert into aluno (idturma, nome, turno) values ('5', 'Carla' , 'diurno');
+insert into aluno (idturma, nome, turno) values ('8', 'Cassia', 'diurno');
+insert into aluno (idturma, nome, turno) values ('9', 'Cassio', 'diurno');
+
+insert into turma (idturma, turno) values ('5', 'diurno');
+insert into turma (idturma, turno) values ('6', 'diurno');
+insert into turma (idturma, turno) values ('7', 'diurno');
+insert into turma (idturma, turno) values ('8', 'diurno');
+insert into turma (idturma, turno) values ('9', 'diurno');
+
+insert into avisos (idAviso,dataAviso,matricula, CPFresponsalvel) values ('01','2020-10-10','220','01');
+insert into avisos (idAviso,dataAviso,matricula, CPFresponsalvel) values ('02','2020-09-10','221','02');
+insert into avisos (idAviso,dataAviso,matricula, CPFresponsalvel) values ('01','2020-10-10','220','01');
+insert into avisos (idAviso,dataAviso,matricula, CPFresponsalvel) values ('01','2020-10-10','220','01');
+insert into avisos (idAviso,dataAviso,matricula, CPFresponsalvel) values ('01','2020-10-10','220','01');
+
+
+insert into responsavel (nome ,filhos) values ('Anna',1);
+insert into responsavel (nome ,filhos) values ('Allan',2);
+insert into responsavel (nome ,filhos) values ('Paula',2);
+insert into responsavel (nome ,filhos) values ('Paulo',3);
+insert into responsavel (nome ,filhos) values ('Amanda',5);
+
+insert into avaliacao (	tipo, dataAvaliacao, idDisciplina, idturma, notaAvialicao) values ('prova','2020-12-05','1','5','10');
+insert into avaliacao (	tipo, dataAvaliacao, idDisciplina, idturma, notaAvialicao) values ('prova','2020-10-25','2','6','10');
+insert into avaliacao (	tipo, dataAvaliacao, idDisciplina, idturma, notaAvialicao) values ('trabalho','2020-9-04','3','7','10');
+insert into avaliacao (	tipo, dataAvaliacao, idDisciplina, idturma, notaAvialicao) values ('teste','2020-12-03','4','8','5');
+insert into avaliacao (	tipo, dataAvaliacao, idDisciplina, idturma, notaAvialicao) values ('teste','2020-12-08','5','9','5');
+ 
+insert into tempoEstudo (idDisciplina,matricula,tempo) values ('9','220','01:00:00');
+insert into tempoEstudo (idDisciplina,matricula,tempo) values ('8','221','02:00:00');
+insert into tempoEstudo (idDisciplina,matricula,tempo) values ('7','222','00:00:00');
+insert into tempoEstudo (idDisciplina,matricula,tempo) values ('6','223','09:00:00');
+insert into tempoEstudo (idDisciplina,matricula,tempo) values ('5','224','06:00:00');
+
+insert into notafinal (idDisciplina,idturma,matricula, nota) values ('1','5','220','0');
+insert into notafinal (idDisciplina,idturma,matricula, nota) values ('2','6','221','10');
+insert into notafinal (idDisciplina,idturma,matricula, nota) values ('3','7','222','5');
+insert into notafinal (idDisciplina,idturma,matricula, nota) values ('4','8','223','6');
+insert into notafinal (idDisciplina,idturma,matricula, nota) values ('5','9','224','9');
 
 /*views*/
 drop view pessoas;
