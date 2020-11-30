@@ -4,35 +4,23 @@ import names
 import random
 import ast
 import os
-
-
-# CRIAR UMA FUNÇÃO QUE GERENCIA CADA ELEMENTO DO CRUD:
-# CREATE: criar listas de valores de atributos para gerar registros aleatórios.
+import sys
 
 # Conexão com o bd:
-escoladb = MySQLdb.connect(
-    host="localhost", user="root", passwd="bd2020", db="escoladb")
+escoladb = MySQLdb.connect(host="localhost", user="root", passwd="bd2020", db="escoladb")
 
 # Criando cursor:
 cursor = escoladb.cursor()
 
-
-# def gera_atributo(atributo):
-#     nome = eval(atributo)
-#     print(nome[random.randint(0,len(nome)-1)])
-# gera_atributo("serie")
-
-#   Gerados de campos:
+#Geradores de campos:
 
 def gserie():
     serie = ["1ª", "2ª", "3ª", "4ª", "5ª", "6ª", "7ª", "8ª", "9ª"]
     return serie[random.randint(0, len(serie)-1)]
 
-
 def gperiodo():
     periodo = ["matutino", "vespertino"]
     return periodo[random.randint(0, len(periodo)-1)]
-
 
 def gcpf():
     cpf = ""
@@ -174,9 +162,21 @@ def gera_cargo():
     return (gid(), gnome_cargo(), gfuncao(), resultado[random.randint(0, len(resultado)-1)][0])
 
 
-# ####################"INTERFACE" DE USUÁRIO############################:
+#####################INTERFACE DE USUÁRIO############################:
 
-# Interfaces de inserção(C)
+tabelas = {"1": "professor","2":"aluno","3":"responsável","4":"disciplina","5":"turma","6":"avaliacao","7":"nota_final","8":"cargo","9":"pessoa"}
+campos = {"1": ["matricula","formacao","pessoa_cpf"],
+        "2": ["serie","periodo","matricula","pessoa_cpf"],
+        "3": ["pessoa_cpf"],
+        "4": ["id","plano_ensino","nome","carga_horaria"],
+        "5": ["id","turno","disciplina_id"],
+        "6": ["tipo","valor","data","turma_id","aluno_matricula"],
+        "7": ["valor","turma_id","aluno_matricula"],
+        "8": ["id","nome","funcao","pessoa_cpf"],
+        "9": ["cpf","nome","telefone","endereco","nascimento","estado_civil"]
+}
+
+# Interfaces de inserção(CREATE)
 def menu_inserir():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("Selecione o registro que deseja inserir:\n")
@@ -184,7 +184,6 @@ def menu_inserir():
     print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
     op = input("7 - Nota final              8 - Cargo\n")
     inserir(op)
-
 
 def pega_pessoa():
     print("Digite os dados pessoais\n")
@@ -199,9 +198,7 @@ def pega_pessoa():
     sql = "INSERT INTO pessoa VALUES (%s, %s, %s, %s, %s, %s)"
     cursor.execute(sql, (cpf, nome, telefone,
                          endereco, nascimento, estado_civil))
-
     return cpf
-
 
 def pega_prof(cpf):
     matricula = gmatri()
@@ -348,433 +345,95 @@ def inserir(op):
         input(" ")
         menu_inserir()
 
-# menu_inserir()
-
 # Interface de leitura (R):
-
-def menu_leitura():
+def menu_read():
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("Selecione o que deseja consultar:\n")
+    print("Selecione o que deseja consultar:")
     print("1 - Professor               2 - Aluno                     3 - Responsável \n")
     print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
-    op = input(
-        "7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
-    consulta(op)
+    print("7 - Nota final              8 - Cargo                     9 - Dados pessoais\n")
+    op = input("0 - Retornar ao menu principal\n")
+    if op == "0":
+        menu_principal()
+    else:
+        read_tabela(op)
 
-
-def consulta_prof():
-    op = input("1 - Matricula                  2 - Todos\n")
+# Função para fazer READ:
+def read_tabela():
+    tabela = tabelas[op]
+    os.system('cls' if os.name == 'nt' else 'clear')
+    res = input("1 - Todos                     2 - Usar condição\n")
     resultado = ''
-    if op == "1":
-        matricula = input("Digite a matricula:\n")
-        cursor.execute("SELECT * from professor WHERE matricula = "+matricula)
+    if res=="2":
+        fcam = input("Digite o campo que deseja usar como filtro da consulta:\n")
+        fvcam = input("Digite o valor que será usado como filtro\n")
+        cursor.execute("SELECT * FROM "+tabela+" WHERE "+fcam+" = "+fvcam)
         resultado = cursor.fetchall()
     else:
-        cursor.execute("SELECT * from professor")
+        cursor.execute("SELECT * FROM "+tabela)
         resultado = cursor.fetchall()
-    return resultado
-
-
-def consulta_aluno():
-    op = input("1 - Matricula                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        matricula = input("Digite a matricula:\n")
-        cursor.execute("SELECT * from aluno WHERE matricula = "+matricula)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from aluno")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_resp():
-    op = input("1 - CPF                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        cpf = input("Digite o CPF:\n")
-        cursor.execute("SELECT * from responsavel WHERE cpf = "+cpf)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from responsavel")
-        resultado = cursor.fetchall()
-    return resultado
-
-
-def consulta_disci():
-    op = input("1 - ID                  2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_dis = input("Digite o id:\n")
-        cursor.execute("SELECT * from disciplina WHERE id = "+id_dis)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from responsavel")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_turma():
-    op = input("1 - ID                  2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o id:\n")
-        cursor.execute("SELECT * from turma WHERE id = "+id_tur)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from turma")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_ava():
-    op = input("1 - Turma e Aluno                 2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o ID da turma:\n")
-        matri_alu = input("Digite a matricula do aluno:\n")
-        cursor.execute("SELECT * from avaliacao WHERE turma_id = " +
-                       id_tur+" AND aluno_matricula = "+matri_alu)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from avaliacao")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_notafinal():
-    op = input("1 - Turma e Aluno                 2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o ID da turma:\n")
-        matri_alu = input("Digite a matricula do aluno:\n")
-        cursor.execute("SELECT * from nota_final WHERE turma_id = " +
-                       id_tur+" AND aluno_matricula = "+matri_alu)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from nota_final")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_cargo():
-    op = input("1 - ID                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        id_cargo = input("Digite o id:\n")
-        cursor.execute("SELECT * from cargo WHERE id = "+id_cargo)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from cargo")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta_pessoa():
-    op = input("1 - CPF                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        cpf = str(input("Digite o CPF:\n"))
-        cursor.execute("SELECT * from pessoa WHERE cpf = "+cpf)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("SELECT * from pessoa")
-        resultado = cursor.fetchall()
-    return resultado
-
-def consulta(op):
-
-    if op == "1":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_prof():
-            print("Matricula: ", r[0], " Formação: ", r[1], " CPF: ", r[2])
-        input(" ")
-        menu_leitura()
-    if op == "2":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_aluno():
-            print("Matricula: ", r[2], " CPF: ", r[3],
-                  " Serie: ", r[0], " Periodo: ", r[1])
-        input(" ")
-        menu_leitura()
-    if op == "3":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_resp():
-            print("CPF: ", r[0])
-        input(" ")
-        menu_leitura()
-    if op == "4":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_disci():
-            print("ID: ", r[0], " plano: ", r[1],
-                  " Nome: ", r[2], " Carga horária ", r[3])
-        input(" ")
-        menu_leitura()
-    if op == "5":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_turma():
-            print("ID: ", r[0], " periodo: ", r[1], " ID Disciplina: ", r[2])
-        input(" ")
-        menu_leitura()
-    if op == "6":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_ava():
-            print("Matricula Aluno: ", r[4], " ID Turma: ", r[3],
-                  " data: ", r[2], " valor: ", r[1], " tipo: ", r[0])
-        input(" ")
-        menu_leitura()
-    if op == "7":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_notafinal():
-            print("Matricula Aluno: ", r[2],
-                  " ID Turma: ", r[1], " valor: ", r[0])
-        input(" ")
-        menu_leitura()
-    if op == "8":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_cargo():
-            print("ID cargo: ", r[0]," nome ", r[1], " função: ", r[2]," CPF: ", r[3])
-        input(" ")
-        menu_leitura()
-    if op == "9":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in consulta_pessoa():
-            print("CPF: ", r[0]," Nome: ", r[1], " Telefone: ", r[2]," Endereço: ", r[3]," Nascimento: ",r[4]," Estado civil: ",r[5])
-        input(" ")
-        menu_leitura()
-
-# menu_leitura()
-
-# Interface para atualizaçãi (U):
+    mostra(op,resultado)
+    menu_read()
 
 # Interface para deletar (D):
-
 def menu_del():
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("Selecione o que deseja deletar:\n")
+    print("Selecione o que deseja deletar:")
     print("1 - Professor               2 - Aluno                     3 - Responsável \n")
     print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
-    op = input("7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
-    deletar(op)
-
-def del_prof():
-    op = input("1 - Matricula                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        matricula = input("Digite a matricula:\n")
-        cursor.execute("DELETE from professor WHERE matricula = "+matricula)
-        resultado = cursor.fetchall()
+    print("7 - Nota final              8 - Cargo                     9 - Dados pessoais\n")
+    op = input("0 - Menu principal\n")
+    if op == "0":
+        menu_principal()
     else:
-        cursor.execute("DELETE from professor")
-        resultado = cursor.fetchall()
-    return resultado
+        del_tabela(op)
 
-def del_aluno():
-    op = input("1 - Matricula                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        matricula = input("Digite a matricula:\n")
-        cursor.execute("DELETE from aluno WHERE matricula = "+matricula)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from aluno")
-        resultado = cursor.fetchall()
-    return resultado
+# Função para realizar DELETE
+def del_tabela(op):
+    tabela = tabelas[op]
+    os.system('cls' if os.name == 'nt' else 'clear')
+    fcam = input("Digite o campo que deseja usar como filtro da exclusão:\n")
+    fvcam = input("Digite o valor que será usado como filtro\n")
+    cursor.execute("DELETE FROM "+tabela+" WHERE "+fcam+" = "+fvcam)
+    escoladb.commit()
+    cursor.execute("SELECT * FROM "+tabela)
+    resultado = cursor.fetchall()
+    mostra(op,resultado)
+    menu_del()
 
-def del_resp():
-    op = input("1 - CPF                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        cpf = input("Digite o CPF:\n")
-        cursor.execute("DELETE from responsavel WHERE cpf = "+cpf)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from responsavel")
-        resultado = cursor.fetchall()
-    return resultado
-
-
-def del_disci():
-    op = input("1 - ID                  2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_dis = input("Digite o id:\n")
-        cursor.execute("DELETE from disciplina WHERE id = "+id_dis)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from responsavel")
-        resultado = cursor.fetchall()
-    return resultado
-
-def del_turma():
-    op = input("1 - ID                  2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o id:\n")
-        cursor.execute("DELETE from turma WHERE id = "+id_tur)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from turma")
-        resultado = cursor.fetchall()
-    return resultado
-
-def del_ava():
-    op = input("1 - Turma e Aluno                 2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o ID da turma:\n")
-        matri_alu = input("Digite a matricula do aluno:\n")
-        cursor.execute("DELETE from avaliacao WHERE turma_id = " +
-                       id_tur+" AND aluno_matricula = "+matri_alu)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from avaliacao")
-        resultado = cursor.fetchall()
-    return resultado
-
-def del_notafinal():
-    op = input("1 - Turma e Aluno                 2 - Todas\n")
-    resultado = ''
-    if op == "1":
-        id_tur = input("Digite o ID da turma:\n")
-        matri_alu = input("Digite a matricula do aluno:\n")
-        cursor.execute("DELETE from nota_final WHERE turma_id = " +
-                       id_tur+" AND aluno_matricula = "+matri_alu)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from nota_final")
-        resultado = cursor.fetchall()
-    return resultado
-
-def del_cargo():
-    op = input("1 - ID                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        id_cargo = input("Digite o id:\n")
-        cursor.execute("DELETE from cargo WHERE id = "+id_cargo)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from cargo")
-        resultado = cursor.fetchall()
-    return resultado
-
-def del_pessoa():
-    op = input("1 - CPF                  2 - Todos\n")
-    resultado = ''
-    if op == "1":
-        cpf = str(input("Digite o CPF:\n"))
-        cursor.execute("DELETE from pessoa WHERE cpf = "+cpf)
-        resultado = cursor.fetchall()
-    else:
-        cursor.execute("DELETE from pessoa")
-        resultado = cursor.fetchall()
-    return resultado
-
-
-def deletar(op):
-
-    if op == "1":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_prof():
-            print("Matricula: ", r[0], " Formação: ", r[1], " CPF: ", r[2])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "2":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_aluno():
-            print("Matricula: ", r[2], " CPF: ", r[3],
-                  " Serie: ", r[0], " Periodo: ", r[1])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "3":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_resp():
-            print("CPF: ", r[0])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "4":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_disci():
-            print("ID: ", r[0], " plano: ", r[1],
-                  " Nome: ", r[2], " Carga horária ", r[3])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "5":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_turma():
-            print("ID: ", r[0], " periodo: ", r[1], " ID Disciplina: ", r[2])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "6":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_ava():
-            print("Matricula Aluno: ", r[4], " ID Turma: ", r[3],
-                  " data: ", r[2], " valor: ", r[1], " tipo: ", r[0])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "7":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_notafinal():
-            print("Matricula Aluno: ", r[2],
-                  " ID Turma: ", r[1], " valor: ", r[0])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "8":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_cargo():
-            print("ID cargo: ", r[0]," nome ", r[1], " função: ", r[2]," CPF: ", r[3])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-    if op == "9":
-        os.system('cls' if os.name == 'nt' else 'clear')
-        for r in del_pessoa():
-            print("CPF: ", r[0]," Nome: ", r[1], " Telefone: ", r[2]," Endereço: ", r[3]," Nascimento: ",r[4]," Estado civil: ",r[5])
-        input(" ")
-        escoladb.commit()
-        menu_leitura()
-
-# menu_del()
-
-# Interface de atualização de dados (U)
-
+# Interface de atualização de dados (U):
 def menu_up():
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("Selecione o que deseja alterar:\n")
+    print("Selecione o que deseja alterar:")
     print("1 - Professor               2 - Aluno                     3 - Responsável \n")
     print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
-    op = input("7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
-    update(op)
+    print("7 - Nota final              8 - Cargo                     9 - Dados pessoais\n")
+    op = input("0 - Menu principal\n")
+    if op == "0":
+        menu_principal()
+    else:
+        up_tabela(op)
 
-def up_tabela(tabela):
+# Função para realizar UPDATE:
+def up_tabela(op):
+    tabela = tabelas[op]
+    os.system('cls' if os.name == 'nt' else 'clear')
     campo = input("Digite o nome do campo que deseja alterar:\n")
     vcam = input("Digite o novo valor do campo:\n")
     fcam = input("Digite o campo que deseja usar como filtro da alteração:\n")
     fvcam = input("Digite o valor que será usado como filtro\n")
-    # "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'"
     cursor.execute("UPDATE "+tabela+" SET "+campo+" = "+vcam+" WHERE "+fcam+" = "+fvcam)
     escoladb.commit()
     cursor.execute("SELECT * FROM "+tabela+" WHERE "+campo+" = "+vcam)
     resultado = cursor.fetchall()
-    print("Os seguinte registros foram atualizados:\n")
-    return resultado
+    mostra(op,resultado)
+    menu_up()
 
-def update(op):
+# Apenas mostra o registros recebidos:
+def mostra(op,resultado):
 
-    tabelas = {"1": "professor","2":"aluno","3":"responsável","4":"disciplina","5":"turma","6":"avaliacao","7":"nota_final","8":"cargo","9":"pessoa"}
-    campos = {"1": ["matricula","formacao","pessoa_cpf"],
-        "2": ["serie","periodo","matricula","pessoa_cpf"],
-        "3": ["pessoa_cpf"],
-        "4": ["id","plano_ensino","nome","carga_horaria"],
-        "5": ["id","turno","disciplina_id"],
-        "6": ["tipo","valor","data","turma_id","aluno_matricula"],
-        "7": ["valor","turma_id","aluno_matricula"],
-        "8": ["id","nome","funcao","pessoa_cpf"],
-        "9": ["cpf","nome","telefone","endereco","nascimento","estado_civil"]
-        }
-    os.system('cls' if os.name == 'nt' else 'clear')
-    for registro in up_tabela(tabelas[op]):
+    print("Os registros foram atualizados!\n")
+    for registro in resultado:
         linha = ''
         i = 0
         for r in registro:
@@ -783,28 +442,16 @@ def update(op):
         linha += "\n"
         print(linha)
     input(" ")
-    menu_up()
+    
+# Menu que gerencia acesso a outras areas do programa:
+def menu_principal():
 
-menu_up()
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Selecione deseja fazer:\n")
+    print("1 - Inserir registros               2 - Visualizar registros\n")
+    print("3 - Atualizar registros             4 - Excluir registros\n")
+    op = input("Enter para sair\n")
+    funcoes = {"1": "menu_inserir()","2": "menu_read()","3": "menu_up()","4": "menu_del()","":"sys.exit()"}
+    eval(funcoes[op])  
 
-# Criação de tabela
-# cursor.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
-
-# Create
-# cursor.execute("INSERT INTO agente VALUES (97, '20:20:10','2019-05-10','Fernando')")
-# escoladb.commit()
-
-# Read
-# cursor.execute("SELECT * from pessoa")
-# resultado = cursor.fetchall()
-# for registro in resultado:
-# print("ID:", registro[0], "Tempo de serviço:", str(registro[1]), "Data do contrato:", str(registro[2]), "Nome:", registro[3])
-# print(registro)
-
-# Update
-# cursor.execute("UPDATE agente set nome = 'Mauricio Santos' WHERE matricula = 84")
-# escoladb.commit()
-
-# Delete
-# cursor.execute("DELETE FROM agente WHERE matricula = 86")
-# escoladb.commit()
+menu_principal()
