@@ -537,8 +537,198 @@ def consulta(op):
         input(" ")
         menu_leitura()
 
+# menu_leitura()
 
-menu_leitura()
+# Interface para atualizaçãi (U):
+
+# Interface para deletar (D):
+
+def menu_del():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Selecione o que deseja deletar:\n")
+    print("1 - Professor               2 - Aluno                     3 - Responsável \n")
+    print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
+    op = input("7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
+    deletar(op)
+
+def del_prof():
+    op = input("1 - Matricula                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        matricula = input("Digite a matricula:\n")
+        cursor.execute("DELETE from professor WHERE matricula = "+matricula)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from professor")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_aluno():
+    op = input("1 - Matricula                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        matricula = input("Digite a matricula:\n")
+        cursor.execute("DELETE from aluno WHERE matricula = "+matricula)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from aluno")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_resp():
+    op = input("1 - CPF                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        cpf = input("Digite o CPF:\n")
+        cursor.execute("DELETE from responsavel WHERE cpf = "+cpf)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from responsavel")
+        resultado = cursor.fetchall()
+    return resultado
+
+
+def del_disci():
+    op = input("1 - ID                  2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_dis = input("Digite o id:\n")
+        cursor.execute("DELETE from disciplina WHERE id = "+id_dis)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from responsavel")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_turma():
+    op = input("1 - ID                  2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o id:\n")
+        cursor.execute("DELETE from turma WHERE id = "+id_tur)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from turma")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_ava():
+    op = input("1 - Turma e Aluno                 2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o ID da turma:\n")
+        matri_alu = input("Digite a matricula do aluno:\n")
+        cursor.execute("DELETE from avaliacao WHERE turma_id = " +
+                       id_tur+" AND aluno_matricula = "+matri_alu)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from avaliacao")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_notafinal():
+    op = input("1 - Turma e Aluno                 2 - Todas\n")
+    resultado = ''
+    if op == "1":
+        id_tur = input("Digite o ID da turma:\n")
+        matri_alu = input("Digite a matricula do aluno:\n")
+        cursor.execute("DELETE from nota_final WHERE turma_id = " +
+                       id_tur+" AND aluno_matricula = "+matri_alu)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from nota_final")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_cargo():
+    op = input("1 - ID                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        id_cargo = input("Digite o id:\n")
+        cursor.execute("DELETE from cargo WHERE id = "+id_cargo)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from cargo")
+        resultado = cursor.fetchall()
+    return resultado
+
+def del_pessoa():
+    op = input("1 - CPF                  2 - Todos\n")
+    resultado = ''
+    if op == "1":
+        cpf = str(input("Digite o CPF:\n"))
+        cursor.execute("DELETE from pessoa WHERE cpf = "+cpf)
+        resultado = cursor.fetchall()
+    else:
+        cursor.execute("DELETE from pessoa")
+        resultado = cursor.fetchall()
+    return resultado
+
+
+def deletar(op):
+
+    if op == "1":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_prof():
+            print("Matricula: ", r[0], " Formação: ", r[1], " CPF: ", r[2])
+        input(" ")
+        menu_leitura()
+    if op == "2":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_aluno():
+            print("Matricula: ", r[2], " CPF: ", r[3],
+                  " Serie: ", r[0], " Periodo: ", r[1])
+        input(" ")
+        menu_leitura()
+    if op == "3":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_resp():
+            print("CPF: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "4":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_disci():
+            print("ID: ", r[0], " plano: ", r[1],
+                  " Nome: ", r[2], " Carga horária ", r[3])
+        input(" ")
+        menu_leitura()
+    if op == "5":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_turma():
+            print("ID: ", r[0], " periodo: ", r[1], " ID Disciplina: ", r[2])
+        input(" ")
+        menu_leitura()
+    if op == "6":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_ava():
+            print("Matricula Aluno: ", r[4], " ID Turma: ", r[3],
+                  " data: ", r[2], " valor: ", r[1], " tipo: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "7":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_notafinal():
+            print("Matricula Aluno: ", r[2],
+                  " ID Turma: ", r[1], " valor: ", r[0])
+        input(" ")
+        menu_leitura()
+    if op == "8":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_cargo():
+            print("ID cargo: ", r[0]," nome ", r[1], " função: ", r[2]," CPF: ", r[3])
+        input(" ")
+        menu_leitura()
+    if op == "9":
+        os.system('cls' if os.name == 'nt' else 'clear')
+        for r in del_pessoa():
+            print("CPF: ", r[0]," Nome: ", r[1], " Telefone: ", r[2]," Endereço: ", r[3]," Nascimento: ",r[4]," Estado civil: ",r[5])
+        input(" ")
+        menu_leitura()
+
+menu_del()
+
+
 
 
 # Criação de tabela
