@@ -1,4 +1,5 @@
 drop database EscolaBD;
+
 create database EscolaBD;
 
 use EscolaBD;
@@ -19,14 +20,15 @@ create table disciplina (
 create table professor (
     formacao varchar(45) not null,
     idDisciplina varchar(45) not null,
-    turma varchar(1) not null);
+    idturma varchar(1) not null);
 create table cargo (
 	idcargo int primary key not null,
     nome varchar(45) not null,
     funcao varchar(45) not null);
 create table aluno( 
-	serie int not null,
-    periodo varchar(45) not null
+	nome varchar(45) not null,
+    idturma int not null,
+	turno varchar(45) not null
 );
 create table turma (
 	idturma int not null primary key,
@@ -129,11 +131,11 @@ insert into notafinal (idDisciplina,idturma,matricula, nota) values ('4','8','22
 insert into notafinal (idDisciplina,idturma,matricula, nota) values ('5','9','224','9');
 
 /*views*/
-drop view pessoas;
+
 create view pessoas as
 select 'Meteria', matricula, idturma, idDisciplina from disciplina
 union all
-select 'professor', formacao, turma, idDisciplina from professor
+select 'professor', formacao, idturma, idDisciplina from professor
 order by idDisciplina;
 
 select * from pessoas;
