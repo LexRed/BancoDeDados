@@ -672,6 +672,7 @@ def deletar(op):
         for r in del_prof():
             print("Matricula: ", r[0], " Formação: ", r[1], " CPF: ", r[2])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "2":
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -679,12 +680,14 @@ def deletar(op):
             print("Matricula: ", r[2], " CPF: ", r[3],
                   " Serie: ", r[0], " Periodo: ", r[1])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "3":
         os.system('cls' if os.name == 'nt' else 'clear')
         for r in del_resp():
             print("CPF: ", r[0])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "4":
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -692,12 +695,14 @@ def deletar(op):
             print("ID: ", r[0], " plano: ", r[1],
                   " Nome: ", r[2], " Carga horária ", r[3])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "5":
         os.system('cls' if os.name == 'nt' else 'clear')
         for r in del_turma():
             print("ID: ", r[0], " periodo: ", r[1], " ID Disciplina: ", r[2])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "6":
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -705,6 +710,7 @@ def deletar(op):
             print("Matricula Aluno: ", r[4], " ID Turma: ", r[3],
                   " data: ", r[2], " valor: ", r[1], " tipo: ", r[0])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "7":
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -712,24 +718,74 @@ def deletar(op):
             print("Matricula Aluno: ", r[2],
                   " ID Turma: ", r[1], " valor: ", r[0])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "8":
         os.system('cls' if os.name == 'nt' else 'clear')
         for r in del_cargo():
             print("ID cargo: ", r[0]," nome ", r[1], " função: ", r[2]," CPF: ", r[3])
         input(" ")
+        escoladb.commit()
         menu_leitura()
     if op == "9":
         os.system('cls' if os.name == 'nt' else 'clear')
         for r in del_pessoa():
             print("CPF: ", r[0]," Nome: ", r[1], " Telefone: ", r[2]," Endereço: ", r[3]," Nascimento: ",r[4]," Estado civil: ",r[5])
         input(" ")
+        escoladb.commit()
         menu_leitura()
 
-menu_del()
+# menu_del()
 
+# Interface de atualização de dados (U)
 
+def menu_up():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Selecione o que deseja alterar:\n")
+    print("1 - Professor               2 - Aluno                     3 - Responsável \n")
+    print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
+    op = input("7 - Nota final              8 - Cargo          9 - Dados pessoais\n")
+    update(op)
 
+def up_tabela(tabela):
+    campo = input("Digite o nome do campo que deseja alterar:\n")
+    vcam = input("Digite o novo valor do campo:\n")
+    fcam = input("Digite o campo que deseja usar como filtro da alteração:\n")
+    fvcam = input("Digite o valor que será usado como filtro\n")
+    # "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'"
+    cursor.execute("UPDATE "+tabela+" SET "+campo+" = "+vcam+" WHERE "+fcam+" = "+fvcam)
+    escoladb.commit()
+    cursor.execute("SELECT * FROM "+tabela+" WHERE "+campo+" = "+vcam)
+    resultado = cursor.fetchall()
+    print("Os seguinte registros foram atualizados:\n")
+    return resultado
+
+def update(op):
+
+    tabelas = {"1": "professor","2":"aluno","3":"responsável","4":"disciplina","5":"turma","6":"avaliacao","7":"nota_final","8":"cargo","9":"pessoa"}
+    campos = {"1": ["matricula","formacao","pessoa_cpf"],
+        "2": ["serie","periodo","matricula","pessoa_cpf"],
+        "3": ["pessoa_cpf"],
+        "4": ["id","plano_ensino","nome","carga_horaria"],
+        "5": ["id","turno","disciplina_id"],
+        "6": ["tipo","valor","data","turma_id","aluno_matricula"],
+        "7": ["valor","turma_id","aluno_matricula"],
+        "8": ["id","nome","funcao","pessoa_cpf"],
+        "9": ["cpf","nome","telefone","endereco","nascimento","estado_civil"]
+        }
+    os.system('cls' if os.name == 'nt' else 'clear')
+    for registro in up_tabela(tabelas[op]):
+        linha = ''
+        i = 0
+        for r in registro:
+            linha += campos[op][i]+": "+r+" "
+            i += 1
+        linha += "\n"
+        print(linha)
+    input(" ")
+    menu_up()
+
+menu_up()
 
 # Criação de tabela
 # cursor.execute("CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))")
