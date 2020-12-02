@@ -12,10 +12,22 @@ escoladb = MySQLdb.connect(host="localhost", user="root", passwd="bd2020", db="e
 # Criando cursor:
 cursor = escoladb.cursor()
 
-#Geradores de campos:
+tabelas = {"1": "professor","2":"aluno","3":"responsavel","4":"disciplina","5":"turma","6":"avaliacao","7":"nota_final","8":"cargo","9":"pessoa"}
+campos = {"1": ["matricula","formacao","pessoa_cpf"],
+        "2": ["serie","periodo","matricula","pessoa_cpf"],
+        "3": ["pessoa_cpf"],
+        "4": ["id","plano_ensino","nome","carga_horaria"],
+        "5": ["id","turno","disciplina_id"],
+        "6": ["tipo","valor","data","turma_id","aluno_matricula"],
+        "7": ["valor","turma_id","aluno_matricula"],
+        "8": ["id","nome","funcao","pessoa_cpf"],
+        "9": ["cpf","nome","telefone","endereco","nascimento","estado_civil"]
+}
+
+#################################### Geradores de campos: ############################################
 
 def gserie():
-    serie = ["1ª", "2ª", "3ª", "4ª", "5ª", "6ª", "7ª", "8ª", "9ª"]
+    serie = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     return serie[random.randint(0, len(serie)-1)]
 
 def gperiodo():
@@ -88,6 +100,7 @@ def gforma():
 
 
 def gid():
+    # random.seed(random.randint(0, 9999))
     return random.randint(0, 999)
 
 
@@ -96,7 +109,8 @@ def gplano():
 
 
 def gcarga():
-    return datetime.timedelta(hours=random.randint(80, 120)).total_seconds()/3600
+    # return datetime.timedelta(hours=random.randint(80, 120)).total_seconds()/3600
+    return datetime.timedelta(hours=random.randint(80, 120))
 
 
 def gnome_cargo():
@@ -112,7 +126,7 @@ def gfuncao():
 
 
 def gnota():
-    return round(random.uniform(0.0, 10.0), 2)
+    return round(random.uniform(0.0, 10.0), 1)
 
 
 def gava():
@@ -125,7 +139,7 @@ def gaviso():
              "O aluno se comportou de forma inadeguada", "O aluno perdeu uma avaliação"]
     return aviso[random.randint(0, 3)]
 
-# Geradores de registros:
+########################## Geradores de registros: #############################################
 
 
 def gera_pessoa():
@@ -133,48 +147,161 @@ def gera_pessoa():
     return tupla
 
 
-def gera_aluno():
+def gera_aluno(cpf):
     # pegando pessoa ja existente para associar:
-    cursor.execute("SELECT * from pessoa")
-    resultado = cursor.fetchall()
-    return (gserie(), gperiodo(), gmatri(), resultado[random.randint(0, len(resultado)-1)][0])
+    # cursor.execute("SELECT * from pessoa")
+    # resultado = cursor.fetchall()
+    return (gserie(), gperiodo(), gmatri(), cpf)
 
 
-def gera_prof():
-    cursor.execute("SELECT * from pessoa")
-    resultado = cursor.fetchall()
-    return (gmatri(), gforma(), resultado[random.randint(0, len(resultado)-1)][0])
+def gera_prof(cpf):
+    # cursor.execute("SELECT * from pessoa")
+    # resultado = cursor.fetchall()
+    # resultado[random.randint(0, len(resultado)-1)][0]
+    return (gmatri(), gforma(), cpf)
+
+# def gera_resp(cpf):
+    # return (cpf)
 
 
 def gera_dis():
     return (gid(), gplano(), gdis(), gcarga())
 
 
-def gera_turma():
-    cursor.execute("SELECT * from disciplina")
-    resultado = cursor.fetchall()
-    return (gid(), gperiodo(), resultado[random.randint(0, len(resultado)-1)][0])
+def gera_turma(dis_id):
+    # cursor.execute("SELECT * from disciplina")
+    # resultado = cursor.fetchall()
+    return (gid(), gperiodo(), dis_id)
 
 
-def gera_cargo():
-    cursor.execute("SELECT * from pessoa")
-    resultado = cursor.fetchall()
-    return (gid(), gnome_cargo(), gfuncao(), resultado[random.randint(0, len(resultado)-1)][0])
+def gera_cargo(cpf):
+    # cursor.execute("SELECT * from pessoa")
+    # resultado = cursor.fetchall():
+    # return (gid(), gnome_cargo(), gfuncao(), resultado[random.randint(0, len(resultado)-1)][0])
+    return (gid(), gnome_cargo(), gfuncao(),cpf)
+
+# Função que gera professor(cria pessoa antes)
+# def insere_prof(num):
+#     i = 0
+#     while i <= num:
+#         sql = "INSERT INTO pessoa VALUES (%s, %s, %s, %s, %s, %s)"
+#         pessoa = gera_pessoa()
+#         cursor.execute(sql, pessoa)
+#         escoladb.commit()
+#         sql = "INSERT INTO professor VALUES (%s, %s, %s)"
+#         cursor.execute(sql, gera_prof(pessoa[0]))
+#         escoladb.commit()
+#         i += 1
+
+# Função que gera aluno
+def insere_auto(tabela_num,num):
+    tabela = tabelas[tabela_num]
+    print(tabela)
+    c = len(campos[tabela_num])
+    print(c)
+    values = " VALUES ("+"%s, "*(c-1)+"%s)"
+
+    if tabela_num in ["1","2","3"]:
+        val = ""
+        if tabela_num == "1":
+            val = "gera_prof(pessoa[0])"
+        elif tabela_num == "2":
+            val = "gera_aluno(pessoa[0])"
+        else:
+            val = "[pessoa[0]]"
+        i = 0
+        while i <= num:
+            sql = "INSERT INTO pessoa VALUES (%s, %s, %s, %s, %s, %s)"
+            pessoa = gera_pessoa()
+            cursor.execute(sql, pessoa)
+            escoladb.commit()
+            print(values)
+            print(eval(val))
+            sql = "INSERT INTO "+tabela+values
+            cursor.execute(sql, eval(val))
+            escoladb.commit()
+            i += 1
+    elif tabela_num == "4":
+        i = 0
+        while i <= num:
+            sql = "INSERT INTO "+tabela+values
+            cursor.execute(sql, gera_dis())
+            escoladb.commit()
+            i += 1
+    elif tabela_num == "5":
+        i = 0
+        while i <= num:
+            sql = "INSERT INTO disciplina VALUES (%s, %s, %s, %s)"
+            disciplina = gera_dis()
+            cursor.execute(sql, disciplina)
+            escoladb.commit()
+            turma = gera_turma(disciplina[0])
+            print(disciplina)
+            print(turma)
+            sql = "INSERT INTO "+tabela+values
+            cursor.execute(sql, turma)
+            escoladb.commit()
+            i += 1
+    elif tabela_num == "6":
+        i = 0
+        while i <= num:
+            cursor.execute("SELECT * from turma")
+            resultado = cursor.fetchall()
+            id_turma = resultado[random.randint(0, len(resultado)-1)][0]
+            print(id_turma)
+
+            cursor.execute("SELECT * from aluno")
+            resultado = cursor.fetchall()
+            matri_aluno = resultado[random.randint(0, len(resultado)-1)][2]
+            print(matri_aluno)
+            print(values)
+
+            sql = "INSERT INTO "+tabela+values
+            print((gava(),gnota(),gdata(),id_turma,matri_aluno))
+            cursor.execute(sql, (gava(),gnota(),gdata(),id_turma,matri_aluno))
+            escoladb.commit()
+            i += 1
+    elif tabela_num == "7":
+        i = 0
+        while i <= num:
+            cursor.execute("SELECT * from turma")
+            resultado = cursor.fetchall()
+            id_turma = resultado[random.randint(0, len(resultado)-1)][0]
+
+            cursor.execute("SELECT * from aluno")
+            resultado = cursor.fetchall()
+            matri_aluno = resultado[random.randint(0, len(resultado)-1)][2]
+            print(id_turma)
+            print(matri_aluno)
+
+            sql = "INSERT INTO "+tabela+values
+            cursor.execute(sql, (gnota(),id_turma,matri_aluno))
+            escoladb.commit()
+            i += 1
+    elif tabela_num == "8":
+        i = 0
+        while i <= num:
+            cursor.execute("SELECT * from pessoa")
+            resultado = cursor.fetchall()
+            cpf = resultado[random.randint(0, len(resultado)-1)][0]
+
+            sql = "INSERT INTO "+tabela+values
+            cursor.execute(sql, gera_cargo(cpf))
+            escoladb.commit()
+            i += 1
+
+
+# insere_auto("1",5)
+# insere_auto("2",5)
+# insere_auto("3",5)
+# insere_auto("4",5)
+# insere_auto("5",5)
+# insere_auto("6",5)
+# insere_auto("7",5)
+# insere_auto("8",5)
 
 
 #####################INTERFACE DE USUÁRIO############################:
-
-tabelas = {"1": "professor","2":"aluno","3":"responsável","4":"disciplina","5":"turma","6":"avaliacao","7":"nota_final","8":"cargo","9":"pessoa"}
-campos = {"1": ["matricula","formacao","pessoa_cpf"],
-        "2": ["serie","periodo","matricula","pessoa_cpf"],
-        "3": ["pessoa_cpf"],
-        "4": ["id","plano_ensino","nome","carga_horaria"],
-        "5": ["id","turno","disciplina_id"],
-        "6": ["tipo","valor","data","turma_id","aluno_matricula"],
-        "7": ["valor","turma_id","aluno_matricula"],
-        "8": ["id","nome","funcao","pessoa_cpf"],
-        "9": ["cpf","nome","telefone","endereco","nascimento","estado_civil"]
-}
 
 # Interfaces de inserção(CREATE)
 def menu_inserir():
@@ -182,8 +309,12 @@ def menu_inserir():
     print("Selecione o registro que deseja inserir:\n")
     print("1 - Professor               2 - Aluno                     3 - Responsável \n")
     print("4 - Disciplina              5 - Turma                     6 - Avaliação\n")
-    op = input("7 - Nota final              8 - Cargo\n")
-    inserir(op)
+    print("7 - Nota final              8 - Cargo\n")
+    op = input("0 - Retornar ao menu principal\n")
+    if op == "0":
+        menu_principal()
+    else:
+        inserir(op)
 
 def pega_pessoa():
     print("Digite os dados pessoais\n")
@@ -222,7 +353,7 @@ def pega_aluno(cpf):
 def pega_resp(cpf):
     pessoa_cpf = cpf
     sql = "INSERT INTO responsavel VALUES (%s)"
-    cursor.execute(sql, (pessoa_cpf))
+    cursor.execute(sql, [pessoa_cpf])
 
 
 def pega_disciplina():
@@ -262,7 +393,7 @@ def pega_nota_final():
     turma = input("Digite o ID da turma:\n")
     aluno = input("Digite o ID do aluno:\n")
     valor = input("Digite o valor da nota final:\n")
-    sql = "INSERT INTO avaliacao VALUES (%s,%s,%s)"
+    sql = "INSERT INTO nota_final VALUES (%s,%s,%s)"
     cursor.execute(sql, (valor, turma, aluno))
 
 
@@ -273,10 +404,10 @@ def pega_cargo():
     print("Digite o CPF caso o cargo esteja ocupado, caso contrário prossiga com enter:\n")
     p = input()
     if p != '':
-        sql = "INSERT INTO avaliacao VALUES (%s,%s,%s,%s)"
+        sql = "INSERT INTO cargo VALUES (%s,%s,%s,%s)"
         cursor.execute(sql, (id_cargo, nome, funcao, p))
     else:
-        sql = "INSERT INTO avaliacao (id, nome, funcao) VALUES (%s,%s,%s)"
+        sql = "INSERT INTO cargo (id, nome, funcao) VALUES (%s,%s,%s)"
         cursor.execute(sql, (id_cargo, nome, funcao))
 
 
@@ -359,7 +490,7 @@ def menu_read():
         read_tabela(op)
 
 # Função para fazer READ:
-def read_tabela():
+def read_tabela(op):
     tabela = tabelas[op]
     os.system('cls' if os.name == 'nt' else 'clear')
     res = input("1 - Todos                     2 - Usar condição\n")
@@ -422,7 +553,10 @@ def up_tabela(op):
     vcam = input("Digite o novo valor do campo:\n")
     fcam = input("Digite o campo que deseja usar como filtro da alteração:\n")
     fvcam = input("Digite o valor que será usado como filtro\n")
-    cursor.execute("UPDATE "+tabela+" SET "+campo+" = "+vcam+" WHERE "+fcam+" = "+fvcam)
+    # sql = "UPDATE "+tabela+" SET "+campo+" = "+vcam+" WHERE "+fcam+" = "+fvcam+";"
+    sql = "UPDATE "+tabela+" SET "+campo+" = "+vcam+" WHERE "+fcam+" = "+fvcam
+    # print(sql)
+    cursor.execute(sql)
     escoladb.commit()
     cursor.execute("SELECT * FROM "+tabela+" WHERE "+campo+" = "+vcam)
     resultado = cursor.fetchall()
@@ -432,12 +566,12 @@ def up_tabela(op):
 # Apenas mostra o registros recebidos:
 def mostra(op,resultado):
 
-    print("Os registros foram atualizados!\n")
+    #print("Os registros foram atualizados!\n")
     for registro in resultado:
-        linha = ''
+        linha = '| '
         i = 0
         for r in registro:
-            linha += campos[op][i]+": "+r+" "
+            linha += campos[op][i]+": "+str(r)+" |"
             i += 1
         linha += "\n"
         print(linha)
